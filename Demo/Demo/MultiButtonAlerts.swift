@@ -19,7 +19,7 @@ struct MultiButtonAlerts: View {
             } label: {
                 Text("Simple MultiButton")
             }
-            .customAlert("Multibutton Alert", isPresented: $showSimple) {
+            .customAlert("Multibutton Alert", isPresented: $showSimple, modifiers: makeModifier()) {
                 Text("Simple Multibutton")
             } actions: {
                 MultiButton {
@@ -42,7 +42,7 @@ struct MultiButtonAlerts: View {
             } label: {
                 Text("Complex MultiButton")
             }
-            .customAlert("Multibutton Alert", isPresented: $showComplex) {
+            .customAlert("Multibutton Alert", isPresented: $showComplex, modifiers: makeModifier()) {
                 Text("Complex Multibutton")
             } actions: {
                 MultiButton {
@@ -74,6 +74,15 @@ struct MultiButtonAlerts: View {
         } header: {
             Text("Multibutton")
         }
+    }
+    
+    private func makeModifier() -> CustomAlertModifiers {
+        CustomAlertModifiers(backgroundView: {
+            CustomAlertBackgroundModifier(
+                padding: 30,
+                cornerRadius: 13.3333,
+                background: .blur(.systemMaterial))
+        }, needsHorizontalDivider: true)
     }
 }
 

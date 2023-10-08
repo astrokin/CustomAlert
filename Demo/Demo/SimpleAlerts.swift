@@ -34,7 +34,7 @@ struct SimpleAlerts: View {
             } label: {
                 Text("Custom Alert")
             }
-            .customAlert("Custom Alert", isPresented: $showCustom) {
+            .customAlert("Custom Alert", isPresented: $showCustom, modifiers: makeModifier()) {
                 Text("Some Message")
             } actions: {
                 Button(role: .cancel) {
@@ -46,6 +46,15 @@ struct SimpleAlerts: View {
         } header: {
             Text("Simple")
         }
+    }
+    
+    private func makeModifier() -> CustomAlertModifiers {
+        CustomAlertModifiers(backgroundView: {
+            CustomAlertBackgroundModifier(
+                padding: 30,
+                cornerRadius: 13.3333,
+                background: .blur(.systemMaterial))
+        }, needsHorizontalDivider: true)
     }
 }
 

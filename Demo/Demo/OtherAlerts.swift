@@ -22,7 +22,7 @@ struct OtherAlerts: View {
             } label: {
                 Text("No Button")
             }
-            .customAlert("No Button Alert", isPresented: $showNoButton) {
+            .customAlert("No Button Alert", isPresented: $showNoButton, modifiers: makeModifier()) {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .onAppear {
@@ -37,7 +37,7 @@ struct OtherAlerts: View {
             } label: {
                 Text("Stacked")
             }
-            .customAlert("Stacked", isPresented: $showStacked) {
+            .customAlert("Stacked", isPresented: $showStacked, modifiers: makeModifier()) {
                 VStack {
                     HStack {
                         Text("Left")
@@ -81,7 +81,7 @@ struct OtherAlerts: View {
             } label: {
                 Text("Fancy")
             }
-            .customAlert(isPresented: $showFancy) {
+            .customAlert(isPresented: $showFancy, modifiers: makeModifier()) {
                 VStack(spacing: 20) {
                     Image("jane")
                         .resizable()
@@ -122,6 +122,15 @@ struct OtherAlerts: View {
         } header: {
             Text("Other")
         }
+    }
+    
+    private func makeModifier() -> CustomAlertModifiers {
+        CustomAlertModifiers(backgroundView: {
+            CustomAlertBackgroundModifier(
+                padding: 30,
+                cornerRadius: 13.3333,
+                background: .blur(.systemMaterial))
+        }, needsHorizontalDivider: true)
     }
 }
 

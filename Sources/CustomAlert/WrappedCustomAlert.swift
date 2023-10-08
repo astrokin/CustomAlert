@@ -10,6 +10,7 @@ import WindowSceneReader
 
 struct WrappedCustomAlert<Content, Actions>: View where Content: View, Actions: View {
     var title: Text?
+    var modifiers: CustomAlertModifiers
     @Binding var isPresented: Bool
     var content: () -> Content
     var actions: () -> Actions
@@ -17,7 +18,7 @@ struct WrappedCustomAlert<Content, Actions>: View where Content: View, Actions: 
     var body: some View {
         WindowSceneReader { windowScene in
             Color.clear
-                .customAlert(title, isPresented: $isPresented, on: windowScene, content: content, actions: actions)
+                .customAlert(title, isPresented: $isPresented, on: windowScene, modifiers: modifiers, content: content, actions: actions)
         }
     }
 }

@@ -10,6 +10,7 @@ import SwiftUI
 /// Custom Alert
 struct CustomAlert<Content, Actions>: View where Content: View, Actions: View {
     var title: Text?
+    var modifiers: CustomAlertModifiers
     @Binding var isPresented: Bool
     @ViewBuilder var content: () -> Content
     @ViewBuilder var actions: () -> Actions
@@ -100,26 +101,71 @@ struct CustomAlert<Content, Actions>: View where Content: View, Actions: View {
             }
             .frame(height: height)
             
-            _VariadicView.Tree(ContentLayout(isPresented: $isPresented), content: actions)
+            _VariadicView.Tree(ContentLayout(isPresented: $isPresented, needsHorizontalDivider: modifiers.needsHorizontalDivider), content: actions)
                 .buttonStyle(.alert)
                 .captureSize($actionsSize)
         }
         .frame(minWidth: minWidth, maxWidth: maxWidth)
-        .background(BlurView(style: .systemMaterial))
-        .cornerRadius(13.3333)
-        .padding(30)
+        .modifier(modifiers.backgroundView())
         .transition(.opacity.combined(with: .scale(scale: 1.1)))
         .animation(.default, value: isPresented)
+    }
+}
+
+public struct CustomAlertModifiers  {
+    public let backgroundView: () -> (CustomAlertBackgroundModifier)
+    public let needsHorizontalDivider: Bool
+    
+    public init(backgroundView: @escaping () -> (CustomAlertBackgroundModifier), needsHorizontalDivider: Bool = true) {
+        self.backgroundView = backgroundView
+        self.needsHorizontalDivider = needsHorizontalDivider
+    }
+}
+
+public struct CustomAlertBackgroundModifier: ViewModifier {
+    
+    public enum BackgroundStyle {
+        case blur(UIBlurEffect.Style)
+        case color(Color)
+    }
+    
+    public var padding: CGFloat
+    public var cornerRadius: CGFloat
+    public var background: BackgroundStyle
+    
+    public init(padding: CGFloat = 8, cornerRadius: CGFloat = 12, background: BackgroundStyle) {
+        self.padding = padding
+        self.cornerRadius = cornerRadius
+        self.background = background
+    }
+    
+    public func body(content: Content) -> some View {
+        switch background {
+        case .blur(let style):
+            content
+                .background(BlurView(style: style))
+                .cornerRadius(cornerRadius)
+                .padding(padding)
+        case .color(let color):
+            content
+                .background(color)
+                .cornerRadius(cornerRadius)
+                .padding(padding)
+        }
     }
 }
 
 struct ContentLayout: _VariadicView_ViewRoot {
     @Binding var isPresented: Bool
     
+    let needsHorizontalDivider: Bool
+    
     func body(children: _VariadicView.Children) -> some View {
         VStack(spacing: 0) {
             ForEach(children) { child in
-                Divider()
+                if needsHorizontalDivider {
+                    Divider()
+                }
                 child
                     .simultaneousGesture(TapGesture().onEnded { _ in
                         isPresented = false

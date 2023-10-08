@@ -19,7 +19,7 @@ struct InputAlerts: View {
             } label: {
                 Text("Show TextField")
             }
-            .customAlert("TextField", isPresented: $showTextField) {
+            .customAlert("TextField", isPresented: $showTextField, modifiers: makeModifier()) {
                 TextField("Enter some String", text: $text)
                     .font(.body)
                     .padding(4)
@@ -35,6 +35,15 @@ struct InputAlerts: View {
                 }
             }
         }
+    }
+    
+    private func makeModifier() -> CustomAlertModifiers {
+        CustomAlertModifiers(backgroundView: {
+            CustomAlertBackgroundModifier(
+                padding: 30,
+                cornerRadius: 13.3333,
+                background: .blur(.systemMaterial))
+        }, needsHorizontalDivider: true)
     }
 }
 

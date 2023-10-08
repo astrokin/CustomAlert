@@ -15,6 +15,7 @@ struct CustomAlertHandler<AlertContent, AlertActions>: ViewModifier where AlertC
     var title: Text?
     @Binding var isPresented: Bool
     var windowScene: UIWindowScene
+    var modifiers: CustomAlertModifiers
     var alertContent: () -> AlertContent
     var alertActions: () -> AlertActions
     
@@ -25,8 +26,9 @@ struct CustomAlertHandler<AlertContent, AlertActions>: ViewModifier where AlertC
                 .onChange(of: isPresented) { value in
                     if value {
                         AlertWindow.present(on: windowScene) {
-                            CustomAlert(title: title, isPresented: $isPresented, content: alertContent, actions: alertActions)
+                            CustomAlert(title: title, modifiers: modifiers, isPresented: $isPresented, content: alertContent, actions: alertActions)
                                 .environment(\.self, environment)
+                                
                         }
                     } else {
                         AlertWindow.dismiss(on: windowScene)
@@ -35,7 +37,7 @@ struct CustomAlertHandler<AlertContent, AlertActions>: ViewModifier where AlertC
                 .onAppear {
                     guard isPresented else { return }
                     AlertWindow.present(on: windowScene) {
-                        CustomAlert(title: title, isPresented: $isPresented, content: alertContent, actions: alertActions)
+                        CustomAlert(title: title, modifiers: modifiers, isPresented: $isPresented, content: alertContent, actions: alertActions)
                             .environment(\.self, environment)
                     }
                 }
@@ -48,7 +50,7 @@ struct CustomAlertHandler<AlertContent, AlertActions>: ViewModifier where AlertC
                 .onReceive(Just(isPresented)) { value in
                     if value {
                         AlertWindow.present(on: windowScene) {
-                            CustomAlert(title: title, isPresented: $isPresented, content: alertContent, actions: alertActions)
+                            CustomAlert(title: title, modifiers: modifiers, isPresented: $isPresented, content: alertContent, actions: alertActions)
                                 .environment(\.self, environment)
                         }
                     } else {

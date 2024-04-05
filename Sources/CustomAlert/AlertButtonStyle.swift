@@ -11,8 +11,13 @@ import SwiftUI
 ///
 /// You can also use ``alert`` to construct this style.
 public struct AlertButtonStyle: ButtonStyle {
-    @Environment(\.colorScheme) var colorScheme
-    @Environment(\.alertButtonHeight) var maxHeight
+    @Environment(\.customAlertConfiguration.button) private var buttonConfiguration
+    @Environment(\.alertDismiss) private var alertDismiss
+    
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.alertButtonHeight) private var maxHeight
+    @Environment(\.window) private var window
     
     public func makeBody(configuration: Self.Configuration) -> some View {
         HStack {
@@ -23,32 +28,31 @@ public struct AlertButtonStyle: ButtonStyle {
                 .truncationMode(.middle)
             Spacer()
         }
-        .padding(12)
+        .padding(buttonConfiguration.padding)
         .frame(maxHeight: maxHeight)
         .background(background(configuration: configuration))
     }
     
-    @ViewBuilder
-    func label(configuration: Self.Configuration) -> some View {
+    @ViewBuilder func label(configuration: Self.Configuration) -> some View {
         if #available(iOS 15, *) {
             switch configuration.role {
             case .some(.destructive):
                 configuration.label
-                    .font(.body)
-                    .foregroundColor(.red)
+                    .font(buttonConfiguration.roleFont[.destructive] ?? buttonConfiguration.font)
+                    .foregroundColor(buttonConfiguration.roleColor[.destructive] ?? color)
             case .some(.cancel):
                 configuration.label
-                    .font(.headline)
-                    .foregroundColor(.accentColor)
+                    .font(buttonConfiguration.roleFont[.cancel] ?? buttonConfiguration.font)
+                    .foregroundColor(buttonConfiguration.roleColor[.cancel] ?? color)
             default:
                 configuration.label
-                    .font(.body)
-                    .foregroundColor(.accentColor)
+                    .font(buttonConfiguration.font)
+                    .foregroundColor(color)
             }
         } else {
             configuration.label
-                .font(.body)
-                .foregroundColor(.accentColor)
+                .font(buttonConfiguration.font)
+                .foregroundColor(color)
         }
     }
     
@@ -67,6 +71,26 @@ public struct AlertButtonStyle: ButtonStyle {
             Color.almostClear
         }
     }
+    
+    var color: Color {
+        if isEnabled {
+            if let color = buttonConfiguration.tintColor {
+                return color
+            }
+            
+            guard let color = window?.tintColor else {
+                return .accentColor
+            }
+            
+            if #available(iOS 15.0, *) {
+                return Color(uiColor: color)
+            } else {
+                return Color(color)
+            }
+        } else {
+            return Color("Disabled", bundle: .module)
+        }
+    }
 }
 
 public extension ButtonStyle where Self == AlertButtonStyle {
@@ -76,22 +100,5 @@ public extension ButtonStyle where Self == AlertButtonStyle {
     /// the `View/buttonStyle(_:)` modifier.
     static var alert: Self {
         AlertButtonStyle()
-    }
-}
-
-struct AlertButtonHeightKey: EnvironmentKey {
-    static var defaultValue: CGFloat? {
-        nil
-    }
-}
-
-extension EnvironmentValues {
-    var alertButtonHeight: CGFloat? {
-        get {
-            self[AlertButtonHeightKey.self]
-        }
-        set {
-            self[AlertButtonHeightKey.self] = newValue
-        }
     }
 }

@@ -38,7 +38,7 @@ struct SimpleAlerts: View {
                 Text("Some Message")
             } actions: {
                 Button(role: .cancel) {
-                    
+                    print("Cancel")
                 } label: {
                     Text("Cancel")
                 }
@@ -58,10 +58,8 @@ struct SimpleAlerts: View {
     }
 }
 
-struct SimpleAlerts_Previews: PreviewProvider {
-    static var previews: some View {
-        List {
-            SimpleAlerts()
-        }
+#Preview {
+    List {
+        SimpleAlerts()
     }
 }

@@ -18,14 +18,14 @@ struct ContentView: View {
                 MultiButtonAlerts()
                 
                 OtherAlerts()
+                
+                CustomAlerts()
             }
             .navigationTitle("Custom Alert")
         }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+#Preview {
+    ContentView()
 }

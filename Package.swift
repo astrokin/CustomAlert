@@ -1,4 +1,4 @@
-// swift-tools-version: 5.6
+// swift-tools-version: 5.8
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "CustomAlert",
     platforms: [
-        .iOS(.v13)
+        .iOS(.v14)
     ],
     products: [
         .library(
@@ -15,9 +15,9 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/divadretlaw/WindowSceneReader", from: "2.1.0")
+        .package(url: "https://github.com/divadretlaw/WindowKit", from: "2.1.1")
     ],
     targets: [
-        .target(name: "CustomAlert", dependencies: ["WindowSceneReader"])
+        .target(name: "CustomAlert", dependencies: ["WindowKit"])
     ]
 )

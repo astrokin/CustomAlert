@@ -1,5 +1,5 @@
 //
-//  API.swift
+//  API+Bool.swift
 //  CustomAlert
 //
 //  Created by David Walter on 03.04.22.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Combine
-import WindowSceneReader
+import WindowKit
 
 public extension View {
     /// Presents an alert when a given condition is true, using an optional text view for
@@ -24,15 +24,20 @@ public extension View {
     ///   - actions: A `ViewBuilder` returning the alert's actions.
     @warn_unqualified_access
     func customAlert<Content, Actions>(
-        _ title: Text? = nil,
+        _ title: @autoclosure @escaping () -> Text? = nil,
         isPresented: Binding<Bool>,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder actions: @escaping () -> Actions
-    ) -> some View
-    where Content: View, Actions: View {
-        self.disabled(isPresented.wrappedValue)
-            .background(WrappedCustomAlert(title: title, modifiers: modifiers, isPresented: isPresented, content: content, actions: actions))
+    ) -> some View where Content: View, Actions: View {
+        modifier(
+            CustomAlertHandler(
+                isPresented: isPresented,
+                windowScene: nil,
+                alertTitle: title,
+                alertContent: content,
+                alertActions: actions
+            )
+        )
     }
     
     /// Presents an alert when a given condition is true, using
@@ -51,12 +56,10 @@ public extension View {
     func customAlert<Content, Actions>(
         _ title: LocalizedStringKey,
         isPresented: Binding<Bool>,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder actions: @escaping () -> Actions
-    ) -> some View
-    where Content: View, Actions: View {
-        self.customAlert(Text(title), isPresented: isPresented, modifiers: modifiers, content: content, actions: actions)
+    ) -> some View where Content: View, Actions: View {
+        self.customAlert(Text(title), isPresented: isPresented, content: content, actions: actions)
     }
     
     /// Presents an alert when a given condition is true
@@ -75,12 +78,10 @@ public extension View {
     func customAlert<Title, Content, Actions>(
         _ title: Title,
         isPresented: Binding<Bool>,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder actions: @escaping () -> Actions
-    ) -> some View
-    where Title: StringProtocol, Content: View, Actions: View {
-        self.customAlert(Text(title), isPresented: isPresented, modifiers: modifiers, content: content, actions: actions)
+    ) -> some View where Title: StringProtocol, Content: View, Actions: View {
+        self.customAlert(Text(title), isPresented: isPresented, content: content, actions: actions)
     }
     
     /// Presents an alert when a given condition is true, using an optional text view for
@@ -99,12 +100,18 @@ public extension View {
     func customAlert<Content, Actions>(
         isPresented: Binding<Bool>,
         title: @escaping () -> Text?,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder actions: @escaping () -> Actions
-    ) -> some View
-    where Content: View, Actions: View {
-        self.customAlert(title(), isPresented: isPresented, modifiers: modifiers, content: content, actions: actions)
+    ) -> some View where Content: View, Actions: View {
+        modifier(
+            CustomAlertHandler(
+                isPresented: isPresented,
+                windowScene: nil,
+                alertTitle: title,
+                alertContent: content,
+                alertActions: actions
+            )
+        )
     }
 }
 
@@ -124,14 +131,21 @@ public extension View {
     ///   - actions: A `ViewBuilder` returning the alert's actions.
     @warn_unqualified_access
     func customAlert<Content, Actions>(
-        _ title: Text? = nil,
+        _ title: @autoclosure @escaping () -> Text? = nil,
         isPresented: Binding<Bool>,
         on windowScene: UIWindowScene,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder actions: @escaping () -> Actions
     ) -> some View where Content: View, Actions: View {
-        return modifier(CustomAlertHandler(title: title, isPresented: isPresented, windowScene: windowScene, modifiers: modifiers, alertContent: content, alertActions: actions))
+        modifier(
+            CustomAlertHandler(
+                isPresented: isPresented,
+                windowScene: windowScene,
+                alertTitle: title,
+                alertContent: content,
+                alertActions: actions
+            )
+        )
     }
     
     /// Presents an alert when a given condition is true, using
@@ -151,11 +165,10 @@ public extension View {
         _ title: LocalizedStringKey,
         isPresented: Binding<Bool>,
         on windowScene: UIWindowScene,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder actions: @escaping () -> Actions
     ) -> some View where Content: View, Actions: View {
-        self.customAlert(Text(title), isPresented: isPresented, on: windowScene, modifiers: modifiers, content: content, actions: actions)
+        self.customAlert(Text(title), isPresented: isPresented, on: windowScene, content: content, actions: actions)
     }
     
     /// Presents an alert when a given condition is true
@@ -176,11 +189,10 @@ public extension View {
         _ title: Title,
         isPresented: Binding<Bool>,
         on windowScene: UIWindowScene,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder actions: @escaping () -> Actions
     ) -> some View where Title: StringProtocol, Content: View, Actions: View {
-        self.customAlert(Text(title), isPresented: isPresented, on: windowScene, modifiers: modifiers, content: content, actions: actions)
+        self.customAlert(Text(title), isPresented: isPresented, on: windowScene, content: content, actions: actions)
     }
     
     /// Presents an alert when a given condition is true, using an optional text view for
@@ -201,11 +213,10 @@ public extension View {
         isPresented: Binding<Bool>,
         on windowScene: UIWindowScene,
         title: @escaping () -> Text?,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder actions: @escaping () -> Actions
     ) -> some View where Content: View, Actions: View {
-        self.customAlert(title(), isPresented: isPresented, on: windowScene, modifiers: modifiers, content: content, actions: actions)
+        self.customAlert(title(), isPresented: isPresented, on: windowScene, content: content, actions: actions)
     }
 }
 
@@ -225,10 +236,9 @@ public extension View {
     func customAlert<Content>(
         _ title: Text? = nil,
         isPresented: Binding<Bool>,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View where Content: View {
-        self.customAlert(title, isPresented: isPresented, modifiers: modifiers, content: content, actions: { /* no actions */ })
+        self.customAlert(title, isPresented: isPresented, content: content, actions: { /* no actions */ })
     }
     
     /// Presents an alert when a given condition is true, using
@@ -246,10 +256,9 @@ public extension View {
     func customAlert<Content>(
         _ title: LocalizedStringKey,
         isPresented: Binding<Bool>,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View where Content: View {
-        self.customAlert(Text(title), isPresented: isPresented, modifiers: modifiers, content: content, actions: { /* no actions */ })
+        self.customAlert(Text(title), isPresented: isPresented, content: content, actions: { /* no actions */ })
     }
     
     /// Presents an alert when a given condition is true
@@ -267,10 +276,9 @@ public extension View {
     func customAlert<Title, Content>(
         _ title: Title,
         isPresented: Binding<Bool>,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View where Title: StringProtocol, Content: View {
-        self.customAlert(Text(title), isPresented: isPresented, modifiers: modifiers, content: content, actions: { /* no actions */ })
+        self.customAlert(Text(title), isPresented: isPresented, content: content, actions: { /* no actions */ })
     }
     
     /// Presents an alert when a given condition is true, using an optional text view for
@@ -288,9 +296,8 @@ public extension View {
     func customAlert<Content>(
         isPresented: Binding<Bool>,
         title: @escaping () -> Text?,
-        modifiers: CustomAlertModifiers,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View where Content: View {
-        self.customAlert(title(), isPresented: isPresented, modifiers: modifiers, content: content, actions: { /* no actions */ })
+        self.customAlert(title(), isPresented: isPresented, content: content, actions: { /* no actions */ })
     }
 }

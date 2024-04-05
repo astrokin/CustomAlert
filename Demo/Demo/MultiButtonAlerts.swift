@@ -86,10 +86,8 @@ struct MultiButtonAlerts: View {
     }
 }
 
-struct MultiButtonAlerts_Previews: PreviewProvider {
-    static var previews: some View {
-        List {
-            MultiButtonAlerts()
-        }
+#Preview {
+    List {
+        MultiButtonAlerts()
     }
 }

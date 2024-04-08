@@ -197,7 +197,16 @@ struct CustomAlert_Previews: PreviewProvider {
             configuration.background = .blurEffect(.dark)
             configuration.padding = EdgeInsets()
             configuration.alert = .create { alert in
-                alert.background = .color(.white)
+                alert.background = .custom({
+                    AnyView(
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color(.disabled))
+                            RoundedRectangle(cornerRadius: 40)
+                                .fill(Color(.green))
+                        }
+                    )
+                })
                 alert.cornerRadius = 4
                 alert.padding = EdgeInsets(top: 20, leading: 20, bottom: 15, trailing: 20)
                 alert.minWidth = 300

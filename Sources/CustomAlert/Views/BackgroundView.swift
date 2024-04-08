@@ -21,6 +21,8 @@ struct BackgroundView: View {
                 color
                 BlurView(style: style)
             }
+        case let .custom(anyview):
+            anyview()
         }
     }
 }
@@ -30,5 +32,13 @@ struct BackgroundView_Previews: PreviewProvider {
         BackgroundView(background: .blurEffect(.regular))
         BackgroundView(background: .color(.blue))
         BackgroundView(background: .colorBlurEffect(.blue, .regular))
+        BackgroundView(background: .custom {
+            AnyView(
+                Text("Custom Background")
+                    .padding()
+                    .background(Color.green)
+                    .clipShape(Circle())
+            )
+        })
     }
 }

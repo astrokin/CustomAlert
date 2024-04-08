@@ -12,7 +12,9 @@ extension CustomAlertConfiguration {
     public struct Button {
         /// The tint color of the alert button
         public var tintColor: Color? = nil
-        internal var roleColor: [ButtonType: Color] = [:]
+        /// The pressed tint color of the alert button
+        public var pressedTintColor: Color? = nil
+        internal var roleColor: [ButtonType: Color] = [.destructive: .red]
         /// The padding of the alert button
         public var padding: EdgeInsets = EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
         /// The font of the alert button
@@ -20,11 +22,10 @@ extension CustomAlertConfiguration {
         internal var roleFont: [ButtonType: Font] = [.cancel: .headline]
         /// Whether to hide the dividers between the buttons
         public var hideDivider: Bool = false
-        /// Override the button style if needed
-        ///
-        /// > Note:
-        /// > Make sure to use `@Environment(\.alertDismiss)` to dismiss the button when using a custom `ButtonStyle`
-        public var buttonStyle: (any ButtonStyle)?
+        /// The background of the alert button
+        public var background: CustomAlertBackground = .color(.almostClear)
+        /// The pressed background of the alert button
+        public var pressedBackground: CustomAlertBackground = .color(Color(.customAlertBackgroundColor))
         
         @available(iOS 15.0, *)
         mutating func font(_ font: Font, for role: ButtonRole) {
@@ -85,6 +86,17 @@ private extension UIColor {
                 in: .main,
                 compatibleWith: traitCollection
             ) ?? .systemBlue
+        }
+    }
+    
+    static var customAlertBackgroundColor: UIColor {
+        UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                UIColor.white.withAlphaComponent(0.135)
+            default:
+                UIColor.black.withAlphaComponent(0.085)
+            }
         }
     }
 }

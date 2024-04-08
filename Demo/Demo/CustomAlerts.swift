@@ -26,36 +26,41 @@ struct CustomAlerts: View {
                     } label: {
                         Text("Cancel")
                     }
-                    Button {
+                    Button(role: .destructive) {
                     } label: {
-                        Text("OK")
+                        Text("Delete")
                     }
                 }
             }
-            .environment(\.customAlertConfiguration, .create { configuration in
-                configuration.background = .blurEffect(.dark)
-                configuration.padding = EdgeInsets()
-                configuration.alert = .create { alert in
-                    alert.background = .color(.white)
-                    alert.cornerRadius = 4
-                    alert.padding = EdgeInsets(top: 20, leading: 20, bottom: 15, trailing: 20)
-                    alert.minWidth = 300
-                    alert.titleFont = .headline
-                    alert.contentFont = .subheadline
-                    alert.alignment = .leading
-                    alert.spacing = 10
-                }
-                configuration.button = .create { button in
-                    button.tintColor = .purple
-                    button.padding = EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
-                    button.font = .callout.weight(.semibold)
-                    button.hideDivider = true
-                }
-            })
+            .configureCustomAlert(.myConfig)
         }
     }
 }
 
+extension CustomAlertConfiguration {
+    static var myConfig: CustomAlertConfiguration = .create { configuration in
+        configuration.background = .blurEffect(.dark)
+        configuration.padding = EdgeInsets()
+        configuration.alert = .create { alert in
+            alert.background = .color(.white)
+            alert.cornerRadius = 4
+            alert.padding = EdgeInsets(top: 20, leading: 20, bottom: 15, trailing: 20)
+            alert.minWidth = 300
+            alert.titleFont = .headline
+            alert.contentFont = .subheadline
+            alert.alignment = .leading
+            alert.spacing = 10
+        }
+        configuration.button = .create { button in
+            button.tintColor = .purple
+            button.pressedTintColor = .white
+            button.padding = EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+            button.font = .callout.weight(.semibold)
+            button.hideDivider = true
+            button.pressedBackground = .color(.purple)
+        }
+    }
+}
 
 #Preview {
     List {

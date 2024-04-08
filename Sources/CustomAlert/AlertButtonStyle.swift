@@ -13,10 +13,10 @@ import SwiftUI
 public struct AlertButtonStyle: ButtonStyle {
     @Environment(\.customAlertConfiguration.button) private var buttonConfiguration
     @Environment(\.alertDismiss) private var alertDismiss
+    @Environment(\.alertButtonHeight) private var maxHeight
     
     @Environment(\.isEnabled) private var isEnabled
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.alertButtonHeight) private var maxHeight
     @Environment(\.window) private var window
     
     public func makeBody(configuration: Self.Configuration) -> some View {
@@ -31,6 +31,9 @@ public struct AlertButtonStyle: ButtonStyle {
         .padding(buttonConfiguration.padding)
         .frame(maxHeight: maxHeight)
         .background(background(configuration: configuration))
+        .onSimultaneousTapGesture {
+            alertDismiss()
+        }
     }
     
     @ViewBuilder func label(configuration: Self.Configuration) -> some View {
@@ -38,46 +41,43 @@ public struct AlertButtonStyle: ButtonStyle {
             switch configuration.role {
             case .some(.destructive):
                 configuration.label
-                    .font(buttonConfiguration.roleFont[.destructive] ?? buttonConfiguration.font)
-                    .foregroundColor(buttonConfiguration.roleColor[.destructive] ?? color)
+                    .font(resolvedFont(role: .destructive))
+                    .foregroundColor(resolvedColor(role: .destructive, isPressed: configuration.isPressed))
             case .some(.cancel):
                 configuration.label
-                    .font(buttonConfiguration.roleFont[.cancel] ?? buttonConfiguration.font)
-                    .foregroundColor(buttonConfiguration.roleColor[.cancel] ?? color)
+                    .font(resolvedFont(role: .cancel))
+                    .foregroundColor(resolvedColor(role: .cancel, isPressed: configuration.isPressed))
             default:
                 configuration.label
-                    .font(buttonConfiguration.font)
-                    .foregroundColor(color)
+                    .font(resolvedFont())
+                    .foregroundColor(resolvedColor(isPressed: configuration.isPressed))
             }
         } else {
             configuration.label
-                .font(buttonConfiguration.font)
-                .foregroundColor(color)
+                .font(resolvedFont())
+                .foregroundColor(resolvedColor(isPressed: configuration.isPressed))
         }
     }
     
-    @ViewBuilder
-    func background(configuration: Self.Configuration) -> some View {
+    @ViewBuilder func background(configuration: Self.Configuration) -> some View {
         if configuration.isPressed {
-            switch colorScheme {
-            case .dark:
-                Color.white.opacity(0.135)
-            case .light:
-                Color.black.opacity(0.085)
-            @unknown default:
-                Color.primary.opacity(0.085)
-            }
+            BackgroundView(background: buttonConfiguration.pressedBackground)
         } else {
-            Color.almostClear
+            BackgroundView(background: buttonConfiguration.background)
         }
     }
     
-    var color: Color {
+    func resolvedColor(role: ButtonType? = nil, isPressed: Bool) -> Color {
         if isEnabled {
-            if let color = buttonConfiguration.tintColor {
+            if isPressed, let color = buttonConfiguration.pressedTintColor {
+                return color
+            } else if let role, let color = buttonConfiguration.roleColor[role] {
+                return color
+            } else if let color = buttonConfiguration.tintColor {
                 return color
             }
             
+            // Fallback
             guard let color = window?.tintColor else {
                 return .accentColor
             }
@@ -89,6 +89,14 @@ public struct AlertButtonStyle: ButtonStyle {
             }
         } else {
             return Color("Disabled", bundle: .module)
+        }
+    }
+    
+    func resolvedFont(role: ButtonType? = nil) -> Font {
+        if let role, let font = buttonConfiguration.roleFont[role] {
+            return font
+        } else {
+            return buttonConfiguration.font
         }
     }
 }
